@@ -26,17 +26,17 @@ export async function POST(request: Request) {
       ticketPrice = 3500;
     }
 
-    // 3. Monta o Payload CORRIGIDO para a InfinitePay
+    /// 3. Monta o Payload CORRIGIDO para a InfinitePay (Com a Infiltração VULP)
     const infinitePayPayload = {
-      // Fallback para garantir que o handle nunca vá vazio, mesmo se a variável falhar
       handle: process.env.INFINITEPAY_HANDLE || "sidneyjati", 
-      redirect_url: "https://lp-conferencia.vercel.app/", 
-      metadata: lead.id, // A InfinitePay permite enviar o ID por aqui ou pelo order_nsu
-      order_nsu: lead.id,
+      redirect_url: "https://lift.mirmoria.com.br/", 
+      webhook_url: "https://lift.mirmoria.com.br/api/webhook?secret=conferencia_vou_secreto_2026", // A MÁGICA VOLTOU!
+      metadata: String(lead.id), 
+      order_nsu: String(lead.id), // Garantindo que o ID vai como string igual fizemos na VULP
       items: [
         {
-          description: ticketName, // CORREÇÃO: A API exige "description" em vez de "name"
-          price: ticketPrice,
+          description: ticketName, 
+          price: ticketPrice, // Lembre-se de deixar 100 aqui para o teste de 1 real
           quantity: 1
         }
       ]
