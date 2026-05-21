@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
     // 2. Define o valor e nome baseado no tipo de ingresso escolhido
     let ticketName = "VOU - LOTE 01";
-    let ticketPrice = 7000; 
+    let ticketPrice = 100; 
 
     if (ticketType === "caravana") {
       ticketName = "Caravana Vou Eu +2";
