@@ -15,33 +15,34 @@ export async function POST(request: Request) {
     if (error) throw error;
 
     // 2. Define o valor e nome baseado no tipo de ingresso escolhido
-    // A API da InfinitePay exige que o preço seja enviado em cêntimos (ex: 7000 = R$ 70,00)
     let ticketName = "VOU - LOTE 01";
-    let ticketPrice = 100; 
+    let ticketPrice = 7000; 
 
     if (ticketType === "caravana") {
       ticketName = "Caravana Vou Eu +2";
       ticketPrice = 6500;
     } else if (ticketType === "kids") {
-      ticketName = "Crianças 8 a 11 Anos";
+      ticketName = "Criancas 8 a 11 Anos";
       ticketPrice = 3500;
     }
 
-    // 3. Monta o Payload exato exigido pela documentação da InfinitePay
+    // 3. Monta o Payload CORRIGIDO para a InfinitePay
     const infinitePayPayload = {
-      handle: process.env.INFINITEPAY_HANDLE,
-      redirect_url: "https://lp-conferencia.vercel.app/", // Para onde o cliente volta depois de pagar
-      order_nsu: lead.id, // O ID do lead no Supabase. É isto que o webhook vai receber de volta!
+      // Fallback para garantir que o handle nunca vá vazio, mesmo se a variável falhar
+      handle: process.env.INFINITEPAY_HANDLE || "sidneyjati", 
+      redirect_url: "https://lp-conferencia.vercel.app/", 
+      metadata: lead.id, // A InfinitePay permite enviar o ID por aqui ou pelo order_nsu
+      order_nsu: lead.id,
       items: [
         {
-          name: ticketName,
+          description: ticketName, // CORREÇÃO: A API exige "description" em vez de "name"
           price: ticketPrice,
           quantity: 1
         }
       ]
     };
 
-    // 4. Pede à API da InfinitePay para gerar o link de pagamento exclusivo
+    // 4. Pede à API da InfinitePay para gerar o link
     const response = await fetch("https://api.checkout.infinitepay.io/links", {
       method: "POST",
       headers: {
@@ -50,19 +51,20 @@ export async function POST(request: Request) {
       body: JSON.stringify(infinitePayPayload)
     });
 
+    // 5. Se a InfinitePay der erro, agora vamos cuspir exatamente qual foi o erro para você ler!
     if (!response.ok) {
       const errorData = await response.text();
       console.error("Erro retornado pela API da InfinitePay:", errorData);
-      throw new Error("Falha ao gerar o link de pagamento");
+      return NextResponse.json({ error: `A InfinitePay recusou: ${errorData}` }, { status: 400 });
     }
 
     const data = await response.json();
     
-    // A API devolve a URL pronta na propriedade "url"
+    // Sucesso! Devolve a URL pronta
     return NextResponse.json({ checkoutUrl: data.url });
 
-  } catch (error) {
-    console.error("Erro na rota de checkout:", error);
-    return NextResponse.json({ error: "Erro interno no servidor" }, { status: 500 });
+  } catch (error: any) {
+    console.error("Erro interno no checkout:", error);
+    return NextResponse.json({ error: error.message || "Erro interno no servidor" }, { status: 500 });
   }
 }
