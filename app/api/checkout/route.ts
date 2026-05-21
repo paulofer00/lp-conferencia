@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     // 2. Define o valor e nome baseado no tipo de ingresso escolhido
     // A API da InfinitePay exige que o preço seja enviado em cêntimos (ex: 7000 = R$ 70,00)
     let ticketName = "VOU - LOTE 01";
-    let ticketPrice = 7000; 
+    let ticketPrice = 100; 
 
     if (ticketType === "caravana") {
       ticketName = "Caravana Vou Eu +2";
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     // 3. Monta o Payload exato exigido pela documentação da InfinitePay
     const infinitePayPayload = {
       handle: process.env.INFINITEPAY_HANDLE,
-      redirect_url: "http://localhost:3000/", // Para onde o cliente volta depois de pagar
+      redirect_url: "https://lp-conferencia.vercel.app/", // Para onde o cliente volta depois de pagar
       order_nsu: lead.id, // O ID do lead no Supabase. É isto que o webhook vai receber de volta!
       items: [
         {

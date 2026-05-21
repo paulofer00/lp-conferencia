@@ -44,23 +44,32 @@ export async function POST(request: Request) {
     });
 
     const mailOptions = {
-      from: '"Conferência VOU" <seu-email@aqui.com>',
+      // Usa o seu próprio e-mail configurado no .env para evitar cair no SPAM
+      from: `"Conferência VOU" <${process.env.SMTP_USER}>`,
       to: lead.email,
       subject: '🎫 Seu Ingresso Garantido: Conferência VOU',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0a0a0a; color: #ffffff; padding: 40px; border-radius: 10px;">
-          <h1 style="text-transform: uppercase; letter-spacing: 2px;">O REINO AVANÇA!</h1>
-          <p style="font-size: 18px;">Fala <strong>${lead.name}</strong>, tudo certo?</p>
-          <p style="color: #a1a1aa; font-size: 16px;">Sua presença está confirmada na Conferência VOU.</p>
+        <div style="font-family: sans-serif; background-color: #000000; color: #ffffff; padding: 40px 20px; border-radius: 15px; max-width: 600px; margin: auto;">
           
-          <div style="background-color: #ffffff; padding: 20px; border-radius: 10px; text-align: center; margin: 30px 0;">
-            <p style="color: #000; font-weight: bold; margin-bottom: 10px; font-size: 20px;">SEU INGRESSO (${lead.ticketType.toUpperCase()})</p>
-            <img src="${qrCodeDataUrl}" alt="QR Code Ingresso" style="width: 250px; height: 250px; margin: 0 auto; display: block;" />
-            <p style="color: #666; font-size: 14px; margin-top: 10px;">Apresente este código na portaria nos dias do evento.</p>
+          <div style="text-align: center; margin-bottom: 30px;">
+            <img src="https://lp-conferencia.vercel.app/logo-vou.png" alt="Conferência VOU" style="max-width: 200px;" />
           </div>
 
-          <hr style="border-color: #27272a; margin: 30px 0;" />
-          <p style="color: #a1a1aa; font-size: 14px; text-align: center;">Igreja MIR Moria - Av. Magalhães Barata, 45 - Aparecida</p>
+          <h1 style="text-align: center; color: #ffffff; text-transform: uppercase;">Inscrição Confirmada!</h1>
+          
+          <p style="font-size: 18px; line-height: 1.6;">Olá, <strong>${lead.name}</strong>,</p>
+          <p style="font-size: 16px; line-height: 1.6; color: #cccccc;">O Reino avança e a sua presença está garantida. Abaixo está o seu ingresso digital.</p>
+
+          <div style="background-color: #ffffff; padding: 25px; border-radius: 10px; text-align: center; margin: 30px 0;">
+            <p style="color: #000000; font-weight: bold; margin-bottom: 15px; font-size: 18px;">APRESENTE ESTE QR CODE NA ENTRADA</p>
+            <img src="${qrCodeDataUrl}" alt="QR Code" style="width: 200px; height: 200px; border: 5px solid #000000;" />
+            <p style="color: #666666; font-size: 14px; margin-top: 15px;">Ingresso: <strong>${lead.ticketType.toUpperCase()}</strong></p>
+          </div>
+
+          <div style="text-align: center; margin-top: 30px; font-size: 14px; color: #777777;">
+            <p>Av. Magalhães Barata, 45 - Aparecida, Santarém - PA</p>
+            <p>Em caso de dúvidas, responda a este e-mail.</p>
+          </div>
         </div>
       `
     };
