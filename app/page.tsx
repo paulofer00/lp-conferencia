@@ -15,7 +15,10 @@ export default function ConferênciaVouLP() {
   // --- NOVOS ESTADOS DO MODAL DE CHECKOUT ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState('');
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
+  const [currentParticipant, setCurrentParticipant] = useState(0);
+  const [participants, setParticipants] = useState([
+    { name: '', email: '', phone: '' }
+  ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -44,23 +47,49 @@ export default function ConferênciaVouLP() {
   // --- FUNÇÕES DO CHECKOUT ---
   const openCheckout = (ticketType: string) => {
     setSelectedTicket(ticketType);
+    setCurrentParticipant(0);
+    
+    // Se for caravana, preparamos 3 espaços em branco. Se não, 1 espaço.
+    if (ticketType === 'caravana') {
+      setParticipants([
+        { name: '', email: '', phone: '' },
+        { name: '', email: '', phone: '' },
+        { name: '', email: '', phone: '' }
+      ]);
+    } else {
+      setParticipants([{ name: '', email: '', phone: '' }]);
+    }
     setIsModalOpen(true);
   };
 
-  const handleCheckoutSubmit = async (e: React.FormEvent) => {
+  const updateParticipant = (field: string, value: string) => {
+    const newParticipants = [...participants];
+    newParticipants[currentParticipant] = { ...newParticipants[currentParticipant], [field]: value };
+    setParticipants(newParticipants);
+  };
+
+  const handleNextOrSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Se for caravana e não estivermos no último participante, apenas avança a tela
+    if (selectedTicket === 'caravana' && currentParticipant < 2) {
+      setCurrentParticipant(currentParticipant + 1);
+      return;
+    }
+
+    // Se for ingresso normal OU já preencheu os 3 da caravana, envia para a API!
     setIsSubmitting(true);
     
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, ticketType: selectedTicket })
+        body: JSON.stringify({ participants, ticketType: selectedTicket }) // Enviamos o array inteiro!
       });
       
       const data = await response.json();
       if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl; // Redireciona para a InfinitePay
+        window.location.href = data.checkoutUrl; 
       }
     } catch (error) {
       console.error("Erro ao gerar checkout", error);
@@ -477,22 +506,44 @@ export default function ConferênciaVouLP() {
             <h3 className="text-2xl font-black uppercase mb-2">Garantir Ingresso</h3>
             <p className="text-zinc-400 mb-6 text-sm">Preencha seus dados para prosseguir para o pagamento seguro.</p>
             
-            <form onSubmit={handleCheckoutSubmit} className="space-y-4">
+            <form onSubmit={handleNextOrSubmit} className="space-y-4">
+              
+              {selectedTicket === 'caravana' && (
+                <div className="flex justify-between items-center mb-4 pb-2 border-b border-zinc-800">
+                  <span className="text-purple-500 font-bold uppercase text-sm tracking-wider">
+                    Inscrição {currentParticipant + 1} de 3
+                  </span>
+                  {currentParticipant > 0 && (
+                    <button 
+                      type="button" 
+                      onClick={() => setCurrentParticipant(currentParticipant - 1)}
+                      className="text-zinc-500 hover:text-white text-xs uppercase font-bold transition-colors"
+                    >
+                      ← Voltar
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-bold text-zinc-300 mb-1">Nome Completo</label>
-                <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors" placeholder="João Silva" />
+                <input required type="text" value={participants[currentParticipant].name} onChange={e => updateParticipant('name', e.target.value)} className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors" placeholder="João Silva" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-zinc-300 mb-1">E-mail</label>
-                <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors" placeholder="joao@email.com" />
+                <input required type="email" value={participants[currentParticipant].email} onChange={e => updateParticipant('email', e.target.value)} className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors" placeholder="joao@email.com" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-zinc-300 mb-1">WhatsApp</label>
-                <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors" placeholder="(00) 00000-0000" />
+                <input required type="tel" value={participants[currentParticipant].phone} onChange={e => updateParticipant('phone', e.target.value)} className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors" placeholder="(00) 00000-0000" />
               </div>
               
               <button disabled={isSubmitting} type="submit" className="w-full bg-white text-black font-black uppercase py-4 rounded-lg mt-6 hover:bg-gray-200 transition-colors flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed">
-                {isSubmitting ? "Gerando Pagamento..." : "Ir para Pagamento"}
+                {isSubmitting 
+                  ? "Gerando Pagamento..." 
+                  : (selectedTicket === 'caravana' && currentParticipant < 2 
+                      ? "Próxima Inscrição →" 
+                      : "Ir para Pagamento")}
               </button>
             </form>
           </div>
