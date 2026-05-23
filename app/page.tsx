@@ -12,6 +12,9 @@ export default function ConferênciaVouLP() {
   // Estados da barra de progresso
   const [progress, setProgress] = useState(40);
 
+  // --- ESTADO DO LOTE ESGOTADO ---
+  const [isLote1Esgotado, setIsLote1Esgotado] = useState(false);
+
   // --- NOVOS ESTADOS DO MODAL DE CHECKOUT ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState('');
@@ -22,6 +25,15 @@ export default function ConferênciaVouLP() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    // 1. Checa o Status do Lote ao carregar a página
+    fetch('/api/status')
+      .then(res => res.json())
+      .then(data => {
+        if (data.isEsgotado) setIsLote1Esgotado(true);
+      })
+      .catch(err => console.error("Erro ao checar status do lote:", err));
+
+    // 2. Contador
     const targetDate = new Date("2026-08-28T19:30:00-03:00").getTime();
     
     const interval = setInterval(() => {
@@ -71,20 +83,18 @@ export default function ConferênciaVouLP() {
   const handleNextOrSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Se for caravana e não estivermos no último participante, apenas avança a tela
     if (selectedTicket === 'caravana' && currentParticipant < 2) {
       setCurrentParticipant(currentParticipant + 1);
       return;
     }
 
-    // Se for ingresso normal OU já preencheu os 3 da caravana, envia para a API!
     setIsSubmitting(true);
     
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ participants, ticketType: selectedTicket }) // Enviamos o array inteiro!
+        body: JSON.stringify({ participants, ticketType: selectedTicket })
       });
       
       const data = await response.json();
@@ -166,9 +176,7 @@ export default function ConferênciaVouLP() {
             <div className="absolute inset-0 opacity-20 bg-[url('/grunge.jpg')] bg-cover mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10 flex flex-col items-start text-left">
               <div className="flex items-baseline mb-6">
-                <span className="text-[120px] leading-none font-black text-transparent bg-clip-text bg-[url('/grunge.jpg')] bg-cover bg-center filter drop-shadow-lg">
-                  V
-                </span>
+                <span className="text-[120px] leading-none font-black text-transparent bg-clip-text bg-[url('/grunge.jpg')] bg-cover bg-center filter drop-shadow-lg">V</span>
                 <span className="text-3xl font-black tracking-widest text-zinc-200 ml-1">ONTADE</span>
               </div>
               <p className="text-zinc-300 font-medium italic mb-6 text-lg leading-relaxed">
@@ -183,9 +191,7 @@ export default function ConferênciaVouLP() {
             <div className="absolute inset-0 opacity-20 bg-[url('/grunge.jpg')] bg-cover mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10 flex flex-col items-start text-left">
               <div className="flex items-baseline mb-6">
-                <span className="text-[120px] leading-none font-black text-transparent bg-clip-text bg-[url('/grunge.jpg')] bg-cover bg-center filter drop-shadow-lg">
-                  O
-                </span>
+                <span className="text-[120px] leading-none font-black text-transparent bg-clip-text bg-[url('/grunge.jpg')] bg-cover bg-center filter drop-shadow-lg">O</span>
                 <span className="text-3xl font-black tracking-widest text-zinc-200 ml-1">BEDIÊNCIA</span>
               </div>
               <p className="text-zinc-300 font-medium italic mb-6 text-lg leading-relaxed">
@@ -200,9 +206,7 @@ export default function ConferênciaVouLP() {
             <div className="absolute inset-0 opacity-20 bg-[url('/grunge.jpg')] bg-cover mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10 flex flex-col items-start text-left">
               <div className="flex items-baseline mb-6">
-                <span className="text-[120px] leading-none font-black text-transparent bg-clip-text bg-[url('/grunge.jpg')] bg-cover bg-center filter drop-shadow-lg">
-                  U
-                </span>
+                <span className="text-[120px] leading-none font-black text-transparent bg-clip-text bg-[url('/grunge.jpg')] bg-cover bg-center filter drop-shadow-lg">U</span>
                 <span className="text-3xl font-black tracking-widest text-zinc-200 ml-1">RGÊNCIA</span>
               </div>
               <p className="text-zinc-300 font-medium italic mb-6 text-lg leading-relaxed">
@@ -237,22 +241,12 @@ export default function ConferênciaVouLP() {
       {/* 5. CONVIDADO ESPECIAL: PG */}
       <section className="relative w-full bg-[#0a0a0a] flex flex-col md:block md:min-h-[80vh] overflow-hidden">
         <div className="relative w-full h-[55vh] min-h-[400px] md:hidden block">
-          <Image 
-            src="/pg-mobile.png" 
-            alt="PG - Convidado Especial" 
-            fill 
-            className="object-cover object-top" 
-          />
+          <Image src="/pg-mobile.png" alt="PG - Convidado Especial" fill className="object-cover object-top" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent"></div>
         </div>
 
         <div className="hidden md:block absolute inset-0 z-0">
-          <Image 
-            src="/pg-01.png" 
-            alt="PG - Convidado Especial" 
-            fill 
-            className="object-cover object-[70%_center] md:object-center" 
-          />
+          <Image src="/pg-01.png" alt="PG - Convidado Especial" fill className="object-cover object-[70%_center] md:object-center" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent w-full md:w-3/4"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-transparent to-[#0a0a0a]"></div>
         </div>
@@ -264,12 +258,7 @@ export default function ConferênciaVouLP() {
               <span className="text-zinc-500">Conosco?</span>
             </h2>
             <div className="relative w-40 sm:w-60 h-20 sm:h-24 mb-6">
-              <Image 
-                src="/logo-pg.jpeg" 
-                alt="Logo PG" 
-                fill 
-                className="object-contain object-left mix-blend-screen opacity-90"
-              />
+              <Image src="/logo-pg.jpeg" alt="Logo PG" fill className="object-contain object-left mix-blend-screen opacity-90" />
             </div>
             <p className="text-zinc-300 text-lg md:text-xl font-medium leading-relaxed max-w-lg">
               Uma das maiores vozes do rock cristão no Brasil. Vocalista do Oficina G3, PG marcou gerações com letras profundas e um som inconfundível. Ele estará conosco ministrando e ativando a igreja através do louvor e da palavra.
@@ -281,12 +270,7 @@ export default function ConferênciaVouLP() {
       {/* 6. PARA QUEM É A CONFERÊNCIA */}
       <section className="relative py-24 md:py-32 w-full bg-[#0a0a0a] overflow-hidden flex items-center min-h-screen">
         <div className="absolute inset-0 z-0">
-          <Image 
-            src="/pg-02.png" 
-            alt="PG no palco" 
-            fill 
-            className="object-cover object-[30%_center] md:object-left opacity-90" 
-          />
+          <Image src="/pg-02.png" alt="PG no palco" fill className="object-cover object-[30%_center] md:object-left opacity-90" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#0a0a0a]/80 to-[#0a0a0a] w-full"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-transparent to-[#0a0a0a]"></div>
         </div>
@@ -304,14 +288,9 @@ export default function ConferênciaVouLP() {
                 "Se você está se sentindo sozinho ou sem esperança.",
                 "Jovens e adultos que precisam de um recomeço na caminhada."
               ].map((item, idx) => (
-                <div 
-                  key={idx} 
-                  className="flex items-center gap-5 bg-white p-6 rounded-2xl border-2 border-[#1e1e1e] hover:-translate-y-1 transition-transform duration-300 shadow-[4px_4px_0px_rgba(0,0,0,0.5)]"
-                >
+                <div key={idx} className="flex items-center gap-5 bg-white p-6 rounded-2xl border-2 border-[#1e1e1e] hover:-translate-y-1 transition-transform duration-300 shadow-[4px_4px_0px_rgba(0,0,0,0.5)]">
                   <CheckCircle className="text-[#1e1e1e] w-7 h-7 flex-shrink-0" />
-                  <p className="text-[#1e1e1e] text-lg font-bold leading-snug">
-                    {item}
-                  </p>
+                  <p className="text-[#1e1e1e] text-lg font-bold leading-snug">{item}</p>
                 </div>
               ))}
             </div>
@@ -343,16 +322,8 @@ export default function ConferênciaVouLP() {
               '/2025/IMG_8527.jpg', '/2025/IMG_8536.jpg', '/2025/IMG_8541.jpg', 
               '/2025/IMG_8549.jpg', '/2025/IMG_7924.jpg', '/2025/IMG_7989.jpg'
             ].map((src, idx) => (
-              <div 
-                key={idx} 
-                className="relative w-48 h-[18rem] md:w-64 md:h-[26rem] overflow-hidden flex-shrink-0 border-2 border-zinc-800"
-              >
-                <Image 
-                  src={src} 
-                  alt={`Evento 2025 foto ${idx}`} 
-                  fill 
-                  className="object-cover" 
-                />
+              <div key={idx} className="relative w-48 h-[18rem] md:w-64 md:h-[26rem] overflow-hidden flex-shrink-0 border-2 border-zinc-800">
+                <Image src={src} alt={`Evento 2025 foto ${idx}`} fill className="object-cover" />
               </div>
             ))}
           </motion.div>
@@ -374,17 +345,31 @@ export default function ConferênciaVouLP() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {/* LOTE 1 */}
-          <div className="bg-zinc-900 border border-zinc-700 p-8 rounded-2xl flex flex-col justify-between hover:-translate-y-2 transition-transform shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-white"></div>
+          
+          {/* LOTE 1 (COM TRAVA DE ESGOTADO DINÂMICA) */}
+          <div className={`relative p-8 rounded-2xl border transition-all flex flex-col justify-between overflow-hidden ${
+            isLote1Esgotado 
+              ? 'bg-zinc-900/30 border-transparent opacity-50 grayscale pointer-events-none select-none' 
+              : 'bg-zinc-900 border-zinc-700 hover:-translate-y-2 shadow-2xl'
+          }`}>
+            {!isLote1Esgotado && <div className="absolute top-0 left-0 w-full h-1 bg-white"></div>}
+            
             <div>
               <h3 className="text-2xl font-black uppercase mb-2">VOU - LOTE 01</h3>
               <p className="text-gray-400 text-sm mb-6">Acesso completo a todos os dias</p>
               <div className="text-5xl font-black mb-8">R$ 70<span className="text-xl text-gray-500">,00</span></div>
             </div>
-            {/* Aqui mudamos para openCheckout */}
-            <button onClick={() => openCheckout('lote1')} className="w-full bg-white text-black font-black uppercase py-4 rounded-lg hover:bg-gray-200 transition-colors">
-              Comprar Ingresso
+            
+            <button 
+              disabled={isLote1Esgotado}
+              onClick={() => openCheckout('lote1')} 
+              className={`w-full font-black uppercase py-4 rounded-lg transition-colors ${
+                isLote1Esgotado
+                  ? 'bg-[#1a1a1a] text-zinc-600'
+                  : 'bg-white text-black hover:bg-gray-200'
+              }`}
+            >
+              {isLote1Esgotado ? 'ESGOTADO' : 'Comprar Ingresso'}
             </button>
           </div>
 
