@@ -37,11 +37,11 @@ export async function POST(request: Request) {
 
     // 3. Define o valor e nome baseado no tipo de ingresso escolhido
     let ticketName = "VOU - LOTE 01";
-    let ticketPrice = 100; 
+    let ticketPrice = 7000; 
 
     if (ticketType === "caravana") {
       ticketName = "Caravana Vou Eu +2";
-      ticketPrice = 100; // Altere para 100 se for fazer o teste de 1 real
+      ticketPrice = 19500; // Altere para 100 se for fazer o teste de 1 real
     } else if (ticketType === "kids") {
       ticketName = "Criancas 8 a 11 Anos";
       ticketPrice = 3500;
