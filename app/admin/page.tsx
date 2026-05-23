@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, ShoppingBag, UserCheck, UserX, Lock, RefreshCw, LayoutDashboard, LogOut, DollarSign, Ticket, Activity, CreditCard, CheckCircle } from "lucide-react";
+import { Users, LayoutDashboard, LogOut, DollarSign, Ticket, CreditCard, ArrowUpRight, Activity } from "lucide-react";
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -10,7 +10,6 @@ export default function AdminDashboard() {
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // Controle de Abas (Sidebar)
   const [activeTab, setActiveTab] = useState<"financeiro" | "inscritos">("financeiro");
   const [filtro, setFiltro] = useState<"todos" | "pendente" | "comprador" | "presente">("todos");
 
@@ -29,7 +28,7 @@ export default function AdminDashboard() {
       setIsAuthenticated(true);
       fetchDashboardData();
     } else {
-      setError("Senha administrativa incorreta!");
+      setError("Senha incorreta.");
     }
   };
 
@@ -51,7 +50,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // --- MÁTRICAS GERAIS ---
+  // --- MÉTIRICAS GERAIS ---
   const totalLeads = leads.length;
   const pendentes = leads.filter(l => l.status === "pendente" || !l.status).length;
   const compradores = leads.filter(l => l.status === "comprador").length;
@@ -66,223 +65,204 @@ export default function AdminDashboard() {
   // --- MÉTRICAS FINANCEIRAS ---
   const paidLeads = leads.filter(l => l.status === "comprador" || l.status === "presente");
   
-  // Cálculo de Receita Baseado na Regra de Negócios
   const revenueLote1 = paidLeads.filter(l => !l.ticketType || l.ticketType === "lote1").length * 70;
   const revenueCaravana = paidLeads.filter(l => l.ticketType === "caravana").length * 65;
   const revenueKids = paidLeads.filter(l => l.ticketType === "kids").length * 35;
   const totalRevenue = revenueLote1 + revenueCaravana + revenueKids;
 
-  // Últimas Vendas (Pegamos os últimos 5 compradores)
   const recentSales = [...paidLeads]
     .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
-    .slice(0, 5);
+    .slice(0, 6);
 
-  // --- TELA DE LOGIN ---
+  // --- TELA DE LOGIN MINIMALISTA ---
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 text-white">
-        <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl">
-          <Lock className="w-12 h-12 text-purple-500 mx-auto mb-4" />
-          <h2 className="text-xl font-black uppercase mb-4">Acesso Restrito</h2>
+      <div className="min-h-screen bg-black flex items-center justify-center p-4 text-white font-sans">
+        <div className="w-full max-w-xs text-center">
+          <Activity className="w-8 h-8 text-white mx-auto mb-6" />
+          <h2 className="text-sm font-medium tracking-widest uppercase text-zinc-400 mb-8">VOU Admin</h2>
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="password"
               value={pinInput}
               onChange={e => setPinInput(e.target.value)}
-              placeholder="Senha de Acesso"
-              className="w-full bg-black border border-zinc-700 rounded-lg px-4 py-3 text-center text-white focus:outline-none focus:border-purple-500 tracking-widest"
+              placeholder="Código de Acesso"
+              className="w-full bg-transparent border-b border-zinc-800 px-4 py-3 text-center text-white focus:outline-none focus:border-white transition-colors tracking-widest placeholder:text-zinc-700"
             />
-            <button type="submit" className="w-full bg-white text-black font-black py-3 rounded-lg hover:bg-gray-200 transition-colors uppercase text-sm">
-              Entrar no Painel
+            <button type="submit" className="w-full text-white text-xs font-bold tracking-widest uppercase py-4 hover:text-zinc-400 transition-colors">
+              Acessar
             </button>
           </form>
-          {error && <p className="text-red-500 font-bold mt-4 text-sm">{error}</p>}
+          {error && <p className="text-red-500 mt-4 text-xs">{error}</p>}
         </div>
       </div>
     );
   }
 
-  // --- TELA DO DASHBOARD ---
+  // --- TELA DO DASHBOARD PREMIUM ---
   return (
-    <div className="min-h-screen bg-[#050505] text-white flex flex-col md:flex-row font-sans selection:bg-purple-600">
+    <div className="min-h-screen bg-black text-zinc-200 flex flex-col md:flex-row font-sans">
       
       {/* SIDEBAR */}
-      <aside className="w-full md:w-64 bg-[#0a0a0a] border-r border-zinc-900 flex flex-col">
-        <div className="p-6 md:p-8 flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-lg flex items-center justify-center">
-            <Activity className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-black tracking-widest uppercase text-lg">VOU Admin</span>
+      <aside className="w-full md:w-64 border-r border-zinc-900 bg-black flex flex-col">
+        <div className="p-8 flex items-center gap-3">
+          <Activity className="w-5 h-5 text-white" />
+          <span className="font-bold tracking-widest uppercase text-sm">VOU Admin</span>
         </div>
         
-        <nav className="flex-1 px-4 space-y-2">
+        <nav className="flex-1 px-4 space-y-1 mt-4">
           <button 
             onClick={() => setActiveTab("financeiro")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === 'financeiro' ? 'bg-zinc-900 text-white shadow-md border border-zinc-800' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50'}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'financeiro' ? 'bg-zinc-900 text-white' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50'}`}
           >
-            <LayoutDashboard className="w-5 h-5" />
+            <LayoutDashboard className="w-4 h-4" />
             Visão Geral
           </button>
           <button 
             onClick={() => setActiveTab("inscritos")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === 'inscritos' ? 'bg-zinc-900 text-white shadow-md border border-zinc-800' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50'}`}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'inscritos' ? 'bg-zinc-900 text-white' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50'}`}
           >
-            <Users className="w-5 h-5" />
-            Lista de Inscrições
+            <Users className="w-4 h-4" />
+            Inscrições
           </button>
         </nav>
 
-        <div className="p-4 border-t border-zinc-900 mt-auto">
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-red-500/80 hover:bg-red-500/10 hover:text-red-500 transition-colors">
-            <LogOut className="w-5 h-5" /> Sair do Painel
+        <div className="p-4 border-t border-zinc-900">
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-zinc-600 hover:text-zinc-400 transition-colors">
+            <LogOut className="w-4 h-4" /> Sair
           </button>
         </div>
       </aside>
 
       {/* CONTEÚDO PRINCIPAL */}
-      <main className="flex-1 p-6 md:p-10 h-screen overflow-y-auto">
-        <header className="flex justify-between items-center mb-10">
+      <main className="flex-1 p-6 md:p-12 h-screen overflow-y-auto">
+        <header className="flex justify-between items-end mb-12">
           <div>
-            <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight">
+            <h1 className="text-2xl font-light tracking-tight text-white">
               {activeTab === "financeiro" ? "Desempenho Financeiro" : "Gestão de Leads"}
             </h1>
-            <p className="text-zinc-500 text-sm mt-1">Santarém / PA - Conferência 2026</p>
+            <p className="text-zinc-500 text-xs tracking-wider uppercase mt-2">Santarém, PA — 2026</p>
           </div>
           <button 
             onClick={fetchDashboardData} 
             disabled={loading}
-            className="flex items-center gap-2 bg-white text-black hover:bg-gray-200 px-5 py-2.5 rounded-full text-sm font-bold transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+            className="text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center gap-2 uppercase tracking-widest"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            <span className="hidden md:inline">Sincronizar Dados</span>
+            {loading ? "Sincronizando..." : "Sincronizar"}
           </button>
         </header>
 
         {/* =========================================
-            TAB 1: FINANCEIRO (ESTILO NEXA AI)
+            TAB 1: FINANCEIRO (MINIMALISTA)
         ============================================= */}
         {activeTab === "financeiro" && (
-          <div className="space-y-6">
+          <div className="space-y-8">
             
             {/* CARDS SUPERIORES */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-[#0d0d0d] border border-zinc-800/80 p-6 rounded-3xl relative overflow-hidden group hover:border-zinc-700 transition-colors">
-                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <DollarSign className="w-24 h-24 text-green-500" />
+              <div className="p-6 border border-zinc-900 bg-[#050505] rounded-2xl flex flex-col justify-between">
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-xs font-medium text-zinc-500 uppercase tracking-widest">Faturamento</span>
+                  <DollarSign className="w-4 h-4 text-zinc-700" />
                 </div>
-                <p className="text-zinc-500 text-sm font-bold uppercase tracking-wider mb-2">Faturamento Bruto</p>
-                <div className="text-4xl md:text-5xl font-black text-white">
-                  <span className="text-2xl text-zinc-600 mr-1">R$</span>
-                  {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                <div>
+                  <span className="text-4xl font-light text-white tracking-tight">R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                 </div>
-                <p className="text-green-500 text-xs font-bold mt-4 bg-green-500/10 inline-block px-3 py-1 rounded-full border border-green-500/20">
-                  ↑ Receita 100% Confirmada
-                </p>
+                <div className="mt-4 flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
+                  <ArrowUpRight className="w-3 h-3" /> Receita Confirmada
+                </div>
               </div>
 
-              <div className="bg-[#0d0d0d] border border-zinc-800/80 p-6 rounded-3xl relative overflow-hidden group hover:border-zinc-700 transition-colors">
-                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <ShoppingBag className="w-24 h-24 text-purple-500" />
+              <div className="p-6 border border-zinc-900 bg-[#050505] rounded-2xl flex flex-col justify-between">
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-xs font-medium text-zinc-500 uppercase tracking-widest">Ingressos Pagos</span>
+                  <Ticket className="w-4 h-4 text-zinc-700" />
                 </div>
-                <p className="text-zinc-500 text-sm font-bold uppercase tracking-wider mb-2">Ingressos Vendidos</p>
-                <div className="text-4xl md:text-5xl font-black text-white">{paidLeads.length}</div>
-                <p className="text-purple-400 text-xs font-bold mt-4 bg-purple-500/10 inline-block px-3 py-1 rounded-full border border-purple-500/20">
-                  {totalLeads > 0 ? Math.round((paidLeads.length / totalLeads) * 100) : 0}% de Conversão Total
-                </p>
+                <div>
+                  <span className="text-4xl font-light text-white tracking-tight">{paidLeads.length}</span>
+                </div>
+                <div className="mt-4 flex items-center gap-1.5 text-xs text-zinc-500 font-medium">
+                  Conversão de {totalLeads > 0 ? Math.round((paidLeads.length / totalLeads) * 100) : 0}%
+                </div>
               </div>
 
-              <div className="bg-[#0d0d0d] border border-zinc-800/80 p-6 rounded-3xl relative overflow-hidden group hover:border-zinc-700 transition-colors">
-                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Ticket className="w-24 h-24 text-blue-500" />
+              <div className="p-6 border border-zinc-900 bg-[#050505] rounded-2xl flex flex-col justify-between">
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-xs font-medium text-zinc-500 uppercase tracking-widest">Ticket Médio</span>
+                  <CreditCard className="w-4 h-4 text-zinc-700" />
                 </div>
-                <p className="text-zinc-500 text-sm font-bold uppercase tracking-wider mb-2">Ticket Médio</p>
-                <div className="text-4xl md:text-5xl font-black text-white">
-                  <span className="text-2xl text-zinc-600 mr-1">R$</span>
-                  {paidLeads.length > 0 ? (totalRevenue / paidLeads.length).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : "0,00"}
+                <div>
+                  <span className="text-4xl font-light text-white tracking-tight">R$ {paidLeads.length > 0 ? (totalRevenue / paidLeads.length).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : "0,00"}</span>
                 </div>
-                <p className="text-blue-400 text-xs font-bold mt-4 bg-blue-500/10 inline-block px-3 py-1 rounded-full border border-blue-500/20">
-                  Média por inscrito pago
-                </p>
+                <div className="mt-4 flex items-center gap-1.5 text-xs text-zinc-500 font-medium">
+                  Média por participante
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               
-              {/* GRÁFICO DE DIVISÃO DE RECEITA (CSS PURO) */}
-              <div className="bg-[#0d0d0d] border border-zinc-800/80 p-8 rounded-3xl">
-                <h3 className="text-lg font-black uppercase mb-8">Composição de Vendas</h3>
+              {/* GRÁFICO DE DIVISÃO (BARRAS FINAS) */}
+              <div className="p-8 border border-zinc-900 bg-[#050505] rounded-2xl">
+                <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-widest mb-8">Composição de Vendas</h3>
                 <div className="space-y-6">
                   {/* Lote 1 */}
                   <div>
                     <div className="flex justify-between items-end mb-2">
-                      <div>
-                        <p className="text-white font-bold">Lote 01</p>
-                        <p className="text-zinc-500 text-xs uppercase">{paidLeads.filter(l => !l.ticketType || l.ticketType === "lote1").length} Ingressos</p>
-                      </div>
-                      <p className="text-white font-black">R$ {revenueLote1.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                      <span className="text-sm font-medium text-zinc-200">Lote 01 <span className="text-zinc-600 font-normal ml-2">{paidLeads.filter(l => !l.ticketType || l.ticketType === "lote1").length} un</span></span>
+                      <span className="text-sm text-white">R$ {revenueLote1.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
-                    <div className="w-full h-3 bg-zinc-900 rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-500 rounded-full" style={{ width: `${totalRevenue > 0 ? (revenueLote1 / totalRevenue) * 100 : 0}%` }}></div>
+                    <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
+                      <div className="h-full bg-white rounded-full" style={{ width: `${totalRevenue > 0 ? (revenueLote1 / totalRevenue) * 100 : 0}%` }}></div>
                     </div>
                   </div>
                   
                   {/* Caravana */}
                   <div>
                     <div className="flex justify-between items-end mb-2">
-                      <div>
-                        <p className="text-white font-bold">Caravana +2</p>
-                        <p className="text-zinc-500 text-xs uppercase">{paidLeads.filter(l => l.ticketType === "caravana").length} Ingressos</p>
-                      </div>
-                      <p className="text-white font-black">R$ {revenueCaravana.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                      <span className="text-sm font-medium text-zinc-200">Caravana +2 <span className="text-zinc-600 font-normal ml-2">{paidLeads.filter(l => l.ticketType === "caravana").length} un</span></span>
+                      <span className="text-sm text-white">R$ {revenueCaravana.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
-                    <div className="w-full h-3 bg-zinc-900 rounded-full overflow-hidden">
-                      <div className="h-full bg-purple-500 rounded-full" style={{ width: `${totalRevenue > 0 ? (revenueCaravana / totalRevenue) * 100 : 0}%` }}></div>
+                    <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-500 rounded-full" style={{ width: `${totalRevenue > 0 ? (revenueCaravana / totalRevenue) * 100 : 0}%` }}></div>
                     </div>
                   </div>
 
                   {/* Kids */}
                   <div>
                     <div className="flex justify-between items-end mb-2">
-                      <div>
-                        <p className="text-white font-bold">VOU Kids</p>
-                        <p className="text-zinc-500 text-xs uppercase">{paidLeads.filter(l => l.ticketType === "kids").length} Ingressos</p>
-                      </div>
-                      <p className="text-white font-black">R$ {revenueKids.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                      <span className="text-sm font-medium text-zinc-200">VOU Kids <span className="text-zinc-600 font-normal ml-2">{paidLeads.filter(l => l.ticketType === "kids").length} un</span></span>
+                      <span className="text-sm text-white">R$ {revenueKids.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
-                    <div className="w-full h-3 bg-zinc-900 rounded-full overflow-hidden">
-                      <div className="h-full bg-amber-500 rounded-full" style={{ width: `${totalRevenue > 0 ? (revenueKids / totalRevenue) * 100 : 0}%` }}></div>
+                    <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
+                      <div className="h-full bg-zinc-600 rounded-full" style={{ width: `${totalRevenue > 0 ? (revenueKids / totalRevenue) * 100 : 0}%` }}></div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* ÚLTIMAS VENDAS REAIS */}
-              <div className="bg-[#0d0d0d] border border-zinc-800/80 p-8 rounded-3xl">
+              {/* ÚLTIMAS VENDAS */}
+              <div className="p-8 border border-zinc-900 bg-[#050505] rounded-2xl">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-black uppercase">Últimas Vendas</h3>
-                  <span className="bg-green-500/10 text-green-400 text-xs font-bold px-3 py-1 rounded-full border border-green-500/20 flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Ao Vivo
-                  </span>
+                  <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-widest">Últimas Transações</h3>
+                  <div className="flex items-center gap-1.5 text-emerald-400/80 text-[10px] uppercase tracking-widest font-medium">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div> Ao Vivo
+                  </div>
                 </div>
                 
                 {recentSales.length === 0 ? (
-                  <div className="text-center py-10 text-zinc-600 font-medium">Nenhuma venda registrada ainda.</div>
+                  <div className="text-center py-8 text-zinc-600 text-sm">Sem transações recentes.</div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="flex flex-col">
                     {recentSales.map((sale, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-4 bg-zinc-900/50 rounded-2xl border border-zinc-800/50">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-black">
-                            {sale.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="font-bold text-white text-sm">{sale.name}</p>
-                            <p className="text-zinc-500 text-xs uppercase tracking-wider">{sale.ticketType || "Lote 1"}</p>
-                          </div>
+                      <div key={idx} className="flex justify-between items-center py-3 border-b border-zinc-900 last:border-0">
+                        <div>
+                          <p className="text-sm font-medium text-zinc-200">{sale.name}</p>
+                          <p className="text-[10px] text-zinc-600 uppercase tracking-widest">{sale.ticketType || "LOTE 1"}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-green-400 font-black">+ R$ {sale.ticketType === 'caravana' ? '65,00' : sale.ticketType === 'kids' ? '35,00' : '70,00'}</p>
-                          <p className="text-zinc-600 text-xs">{new Date(sale.created_at).toLocaleDateString('pt-BR')}</p>
+                          <p className="text-sm text-emerald-400 font-medium">+ R$ {sale.ticketType === 'caravana' ? '65,00' : sale.ticketType === 'kids' ? '35,00' : '70,00'}</p>
+                          <p className="text-[10px] text-zinc-600">{new Date(sale.created_at).toLocaleDateString('pt-BR')}</p>
                         </div>
                       </div>
                     ))}
@@ -294,74 +274,70 @@ export default function AdminDashboard() {
         )}
 
         {/* =========================================
-            TAB 2: LISTA DE INSCRITOS (CRM)
+            TAB 2: LISTA DE INSCRITOS (CRM CLEAN)
         ============================================= */}
         {activeTab === "inscritos" && (
           <div className="space-y-6">
             
-            {/* CARDS DE STATUS (Filtros) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
-              <div onClick={() => setFiltro("todos")} className={`bg-[#0d0d0d] border p-5 rounded-2xl cursor-pointer transition-all ${filtro === 'todos' ? 'border-white bg-white/5' : 'border-zinc-800 hover:border-zinc-700'}`}>
-                <div className="text-zinc-500 mb-1"><span className="text-xs font-bold uppercase tracking-wider">Total Leads</span></div>
-                <div className="text-3xl font-black text-white">{totalLeads}</div>
-              </div>
-              <div onClick={() => setFiltro("pendente")} className={`bg-[#0d0d0d] border p-5 rounded-2xl cursor-pointer transition-all ${filtro === 'pendente' ? 'border-amber-500 bg-amber-500/5 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'border-zinc-800 hover:border-zinc-700'}`}>
-                <div className="text-amber-500/70 mb-1"><span className="text-xs font-bold uppercase tracking-wider">Pendentes</span></div>
-                <div className="text-3xl font-black text-amber-500">{pendentes}</div>
-              </div>
-              <div onClick={() => setFiltro("comprador")} className={`bg-[#0d0d0d] border p-5 rounded-2xl cursor-pointer transition-all ${filtro === 'comprador' ? 'border-purple-500 bg-purple-500/5 shadow-[0_0_15px_rgba(168,85,247,0.1)]' : 'border-zinc-800 hover:border-zinc-700'}`}>
-                <div className="text-purple-400/70 mb-1"><span className="text-xs font-bold uppercase tracking-wider">Confirmados</span></div>
-                <div className="text-3xl font-black text-purple-400">{compradores}</div>
-              </div>
-              <div onClick={() => setFiltro("presente")} className={`bg-[#0d0d0d] border p-5 rounded-2xl cursor-pointer transition-all ${filtro === 'presente' ? 'border-green-500 bg-green-500/5 shadow-[0_0_15px_rgba(34,197,94,0.1)]' : 'border-zinc-800 hover:border-zinc-700'}`}>
-                <div className="text-green-400/70 mb-1"><span className="text-xs font-bold uppercase tracking-wider">No Evento</span></div>
-                <div className="text-3xl font-black text-green-400">{presentes}</div>
-              </div>
+            {/* NAVEGAÇÃO DE FILTROS (TABS) */}
+            <div className="flex gap-6 border-b border-zinc-900 mb-6 overflow-x-auto">
+              <button onClick={() => setFiltro("todos")} className={`pb-3 text-sm font-medium whitespace-nowrap transition-colors ${filtro === 'todos' ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>Todos ({totalLeads})</button>
+              <button onClick={() => setFiltro("comprador")} className={`pb-3 text-sm font-medium whitespace-nowrap transition-colors ${filtro === 'comprador' ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>Pagos ({compradores})</button>
+              <button onClick={() => setFiltro("presente")} className={`pb-3 text-sm font-medium whitespace-nowrap transition-colors ${filtro === 'presente' ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>No Evento ({presentes})</button>
+              <button onClick={() => setFiltro("pendente")} className={`pb-3 text-sm font-medium whitespace-nowrap transition-colors ${filtro === 'pendente' ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>Pendentes ({pendentes})</button>
             </div>
 
-            {/* TABELA DE LISTAGEM */}
-            <div className="bg-[#0d0d0d] border border-zinc-800/80 rounded-3xl overflow-hidden shadow-xl">
+            {/* TABELA ULTRA MINIMALISTA */}
+            <div className="bg-[#050505] border border-zinc-900 rounded-xl overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-zinc-800 bg-zinc-900/50 text-zinc-500 text-xs font-black uppercase tracking-widest">
-                      <th className="p-6">Participante</th>
-                      <th className="p-6">Ingresso</th>
-                      <th className="p-6">WhatsApp</th>
-                      <th className="p-6 text-right">Status</th>
+                    <tr className="border-b border-zinc-900 text-zinc-600 text-xs font-medium">
+                      <th className="py-4 px-6 font-normal">Participante</th>
+                      <th className="py-4 px-6 font-normal">Tipo</th>
+                      <th className="py-4 px-6 font-normal">Contato</th>
+                      <th className="py-4 px-6 font-normal text-right">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-800/50 text-sm">
+                  <tbody className="divide-y divide-zinc-900">
                     {leadsFiltrados.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="text-center p-12 text-zinc-600 font-medium">A lista está limpa. Aguardando novos registros.</td>
+                        <td colSpan={4} className="text-center py-12 text-zinc-600 text-sm">Nenhum registro encontrado.</td>
                       </tr>
                     ) : (
                       leadsFiltrados.map((lead) => (
-                        <tr key={lead.id} className="hover:bg-zinc-900/30 transition-colors">
-                          <td className="p-6">
-                            <p className="font-bold text-white text-base">{lead.name}</p>
-                            <p className="text-zinc-500 text-xs mt-0.5">{lead.email}</p>
+                        <tr key={lead.id} className="hover:bg-zinc-900/20 transition-colors">
+                          <td className="py-4 px-6">
+                            <p className="font-medium text-zinc-200">{lead.name}</p>
+                            <p className="text-xs text-zinc-500 mt-0.5">{lead.email}</p>
                           </td>
-                          <td className="p-6">
-                            <span className="bg-zinc-800 text-zinc-300 text-[10px] px-2.5 py-1 rounded-md font-black uppercase tracking-wider border border-zinc-700">
-                              {lead.ticketType || "LOTE1"}
-                            </span>
+                          <td className="py-4 px-6 text-zinc-400 uppercase text-xs tracking-wider">
+                            {lead.ticketType || "Lote 1"}
                           </td>
-                          <td className="p-6">
+                          <td className="py-4 px-6">
                             <a 
-                              href={`https://wa.me/55${lead.phone?.replace(/\D/g, "")}`}
+                              href={`https://wa.me/55${lead.phone?.replace(/\D/g, "")}`} 
                               target="_blank" 
-                              className="text-white hover:text-green-400 flex items-center gap-2 transition-colors font-medium"
+                              className="text-zinc-400 hover:text-white transition-colors"
                             >
                               {lead.phone}
                             </a>
                           </td>
-                          <td className="p-6 text-right">
-                            {lead.status === "presente" && <span className="bg-green-500/10 text-green-400 text-[10px] font-black px-3 py-1.5 rounded-full border border-green-500/20 uppercase tracking-widest inline-flex items-center gap-1.5"><CheckCircle className="w-3 h-3" /> Catraca Liberada</span>}
-                            {lead.status === "comprador" && <span className="bg-purple-500/10 text-purple-400 text-[10px] font-black px-3 py-1.5 rounded-full border border-purple-500/20 uppercase tracking-widest inline-flex items-center gap-1.5"><CreditCard className="w-3 h-3" /> Pago</span>}
+                          <td className="py-4 px-6 text-right">
+                            {lead.status === "presente" && (
+                              <span className="inline-flex items-center gap-2 text-xs text-zinc-300">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Presente
+                              </span>
+                            )}
+                            {lead.status === "comprador" && (
+                              <span className="inline-flex items-center gap-2 text-xs text-zinc-300">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Pago
+                              </span>
+                            )}
                             {(lead.status === "pendente" || !lead.status) && (
-                              <span className="bg-amber-500/10 text-amber-500 text-[10px] font-black px-3 py-1.5 rounded-full border border-amber-500/20 uppercase tracking-widest inline-flex items-center gap-1.5">⏳ Carrinho Aband.</span>
+                              <span className="inline-flex items-center gap-2 text-xs text-zinc-500">
+                                <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> Pendente
+                              </span>
                             )}
                           </td>
                         </tr>
