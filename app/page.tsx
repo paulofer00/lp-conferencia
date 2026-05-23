@@ -272,7 +272,7 @@ export default function ConferênciaVouLP() {
               />
             </div>
             <p className="text-zinc-300 text-lg md:text-xl font-medium leading-relaxed max-w-lg">
-              Uma das maiores vozes do rock cristão no Brasil. Ex-vocalista da Oficina G3, PG marcou gerações com letras profundas e um som inconfundível. Ele estará conosco ministrando e ativando a igreja através do louvor e da palavra.
+              Uma das maiores vozes do rock cristão no Brasil. Vocalista do Oficina G3, PG marcou gerações com letras profundas e um som inconfundível. Ele estará conosco ministrando e ativando a igreja através do louvor e da palavra.
             </p>
           </div>
         </div>
