@@ -30,9 +30,9 @@ export async function POST(request: Request) {
     for (const lead of allLeads) {
       await supabaseAdmin.from("leads").update({ status: "comprador" }).eq("id", lead.id);
 
-      // 1. Gera o QR Code e transforma em bytes de imagem para o PDF
-      const qrData = JSON.stringify({ id: lead.id, nome: lead.name, ingresso: lead.ticketType });
-      const qrCodeDataUrl = await QRCode.toDataURL(qrData, { margin: 1, width: 300 });
+      // 1. Gera o QR Code com o Link de Check-in
+      const checkinUrl = `https://lift.mirmoria.com.br/checkin?id=${lead.id}`;
+      const qrCodeDataUrl = await QRCode.toDataURL(checkinUrl, { margin: 1, width: 300 });
       const qrImageBytes = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64');
 
       // 2. Monta o Ingresso em PDF
