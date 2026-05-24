@@ -347,12 +347,19 @@ export default function ConferênciaVouLP() {
         <div className="grid md:grid-cols-3 gap-8">
           
           {/* LOTE 1 (COM TRAVA DE ESGOTADO DINÂMICA) */}
-          <div className={`relative p-8 rounded-2xl border transition-all flex flex-col justify-between overflow-hidden ${
+          <div className={`relative p-8 rounded-2xl border transition-all flex flex-col justify-between ${
             isLote1Esgotado 
-              ? 'bg-zinc-900/30 border-transparent opacity-50 grayscale pointer-events-none select-none' 
+              ? 'bg-zinc-900/30 border-transparent opacity-50 grayscale pointer-events-none select-none overflow-hidden' 
               : 'bg-zinc-900 border-zinc-700 hover:-translate-y-2 shadow-2xl'
           }`}>
-            {!isLote1Esgotado && <div className="absolute top-0 left-0 w-full h-1 bg-white"></div>}
+            {!isLote1Esgotado && (
+              <>
+                <div className="absolute top-0 left-0 w-full h-1 bg-white rounded-t-2xl"></div>
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black font-bold uppercase text-[10px] md:text-xs px-3 md:px-4 py-1 rounded-full whitespace-nowrap tracking-wider shadow-md">
+                  Até Dia 14/06
+                </div>
+              </>
+            )}
             
             <div>
               <h3 className="text-2xl font-black uppercase mb-2">VOU - LOTE 01</h3>
@@ -375,7 +382,7 @@ export default function ConferênciaVouLP() {
 
           {/* CARAVANA */}
           <div className="bg-zinc-800 border-2 border-white p-8 rounded-2xl flex flex-col justify-between transform md:-translate-y-4 shadow-[0_0_30px_rgba(255,255,255,0.1)] relative">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-black font-bold uppercase text-xs px-4 py-1 rounded-full">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-black font-bold uppercase text-xs px-4 py-1 rounded-full whitespace-nowrap">
               Mais Popular
             </div>
             <div>
