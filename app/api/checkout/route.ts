@@ -5,11 +5,11 @@ export async function POST(request: Request) {
   try {
     const { participants, ticketType } = await request.json();
 
-    // 1. REGRA DE NEGÓCIO: VIRADA DE LOTE AUTOMÁTICA
     let finalTicketType = ticketType;
     let ticketName = "VOU - LOTE 01";
-    let ticketPrice = 7000; // R$ 70,00
+    let ticketPrice = 7000;
 
+    // 1. REGRA DE PREÇOS E LOTES
     if (ticketType === "caravana") {
       ticketName = "Caravana Vou Eu +2";
       ticketPrice = 19500;
@@ -19,35 +19,32 @@ export async function POST(request: Request) {
       ticketPrice = 3500;
       finalTicketType = "kids";
     } else {
-      // Se for ingresso individual, acionamos a trava de segurança!
-      
-      // Ajustamos a data limite com fuso horário de Brasília (-03:00) 
-      // para a Vercel não virar o lote 3h mais cedo por causa do fuso UTC.
+      // Regra do Lote 01 e Lote 02 (Pode ser 1 ou 2 pessoas)
       const limitDate = new Date("2026-06-14T00:00:00-03:00");
       const currentDate = new Date();
 
-      // Conta APENAS os ingressos individuais que já foram PAGOS ou estão no EVENTO
       const { count } = await supabaseAdmin
         .from("leads")
         .select("*", { count: "exact", head: true })
         .in("status", ["comprador", "presente"])
-        .in("ticketType", ["lote1", "lote2", "LOTE1"]); // Pega o histórico das variações
+        .in("ticketType", ["lote1", "lote2", "LOTE1"]);
 
       const ingressosVendidos = count || 0;
 
-      // A MAGIA ACONTECE AQUI: Vendeu 45 OU chegou dia 14? Vira para Lote 2!
+      // Se o lote virou: R$ 80 vezes a quantidade de pessoas preenchidas
       if (ingressosVendidos >= 45 || currentDate >= limitDate) {
         finalTicketType = "lote2";
-        ticketName = "VOU - LOTE 02";
-        ticketPrice = 8000; // R$ 80,00
+        ticketPrice = 8000 * participants.length; 
+        ticketName = participants.length > 1 ? `VOU - LOTE 02 (${participants.length} Ingressos)` : "VOU - LOTE 02";
       } else {
+        // Lote normal: R$ 70 vezes a quantidade de pessoas
         finalTicketType = "lote1";
-        ticketName = "VOU - LOTE 01";
-        ticketPrice = 7000; // R$ 70,00
+        ticketPrice = 7000 * participants.length;
+        ticketName = participants.length > 1 ? `VOU - LOTE 01 (${participants.length} Ingressos)` : "VOU - LOTE 01";
       }
     }
 
-    // 2. Salva o comprador principal com o LOTE CORRIGIDO DINAMICAMENTE
+    // 2. Salva o comprador principal
     const mainParticipant = participants[0];
     const { data: mainLead, error: mainError } = await supabaseAdmin
       .from("leads")
@@ -55,7 +52,7 @@ export async function POST(request: Request) {
         name: mainParticipant.name, 
         email: mainParticipant.email, 
         phone: mainParticipant.phone, 
-        ticketType: finalTicketType, // Agora salva "lote1" ou "lote2" da forma certa
+        ticketType: finalTicketType, 
         status: "pendente", 
         origin: "conferencia-vou" 
       }])
@@ -64,7 +61,7 @@ export async function POST(request: Request) {
 
     if (mainError) throw mainError;
 
-    // 3. Se for caravana, salva os acompanhantes
+    // 3. Salva os acompanhantes (1 acompanhante no Lote 01, ou 2 na Caravana)
     if (participants.length > 1) {
       const extraLeads = participants.slice(1).map((p: any) => ({
         name: p.name,
@@ -77,7 +74,7 @@ export async function POST(request: Request) {
       await supabaseAdmin.from("leads").insert(extraLeads);
     }
 
-    // 4. Monta o Payload para a InfinitePay com o preço exato do momento
+    // 4. Monta o Payload para a InfinitePay
     const infinitePayPayload = {
       handle: process.env.INFINITEPAY_HANDLE || "sidneyjati", 
       redirect_url: "https://lift.mirmoria.com.br/", 
@@ -88,7 +85,7 @@ export async function POST(request: Request) {
         {
           description: ticketName, 
           price: ticketPrice,
-          quantity: 1
+          quantity: 1 // Na InfinitePay cobramos o valor total num item só
         }
       ]
     };

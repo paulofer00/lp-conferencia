@@ -61,7 +61,6 @@ export default function ConferênciaVouLP() {
     setSelectedTicket(ticketType);
     setCurrentParticipant(0);
     
-    // Se for caravana, preparamos 3 espaços em branco. Se não, 1 espaço.
     if (ticketType === 'caravana') {
       setParticipants([
         { name: '', email: '', phone: '' },
@@ -74,6 +73,15 @@ export default function ConferênciaVouLP() {
     setIsModalOpen(true);
   };
 
+  // Ajusta a quantidade de ingressos dinamicamente no Lote 01
+  const adjustQuantity = (qtd: number) => {
+    if (qtd === 1) {
+      setParticipants([participants[0]]);
+    } else if (qtd === 2) {
+      setParticipants([participants[0], { name: '', email: '', phone: '' }]);
+    }
+  };
+
   const updateParticipant = (field: string, value: string) => {
     const newParticipants = [...participants];
     newParticipants[currentParticipant] = { ...newParticipants[currentParticipant], [field]: value };
@@ -83,7 +91,8 @@ export default function ConferênciaVouLP() {
   const handleNextOrSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (selectedTicket === 'caravana' && currentParticipant < 2) {
+    // Lógica Genérica: Avança enquanto houver pessoas no array
+    if (currentParticipant < participants.length - 1) {
       setCurrentParticipant(currentParticipant + 1);
       return;
     }
@@ -135,7 +144,6 @@ export default function ConferênciaVouLP() {
 
       {/* 2. BARRAS DESLIZANTES EM "X" */}
       <section className="relative h-[150px] -mt-8 sm:-mt-12 z-20 flex items-center justify-center pointer-events-none">
-        
         <div className="absolute w-[200vw] left-[-50vw] rotate-[-4deg] bg-white z-10 shadow-xl flex pointer-events-auto">
           <motion.div 
             className="flex whitespace-nowrap py-3 sm:py-4 text-black w-max"
@@ -159,7 +167,6 @@ export default function ConferênciaVouLP() {
             ))}
           </motion.div>
         </div>
-
       </section>
 
       {/* 3. EXPLICAÇÃO DO "VOU" */}
@@ -170,8 +177,6 @@ export default function ConferênciaVouLP() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          
-          {/* VONTADE */}
           <div className="relative bg-[#0d0d0d] p-8 border-2 border-zinc-800 hover:border-zinc-500 hover:-translate-y-2 transition-all duration-300 shadow-[8px_8px_0px_rgba(39,39,42,0.5)]">
             <div className="absolute inset-0 opacity-20 bg-[url('/grunge.jpg')] bg-cover mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10 flex flex-col items-start text-left">
@@ -186,7 +191,6 @@ export default function ConferênciaVouLP() {
             </div>
           </div>
 
-          {/* OBEDIÊNCIA */}
           <div className="relative bg-[#0d0d0d] p-8 border-2 border-zinc-800 hover:border-zinc-500 hover:-translate-y-2 transition-all duration-300 shadow-[8px_8px_0px_rgba(39,39,42,0.5)]">
             <div className="absolute inset-0 opacity-20 bg-[url('/grunge.jpg')] bg-cover mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10 flex flex-col items-start text-left">
@@ -201,7 +205,6 @@ export default function ConferênciaVouLP() {
             </div>
           </div>
 
-          {/* URGÊNCIA */}
           <div className="relative bg-[#0d0d0d] p-8 border-2 border-zinc-800 hover:border-zinc-500 hover:-translate-y-2 transition-all duration-300 shadow-[8px_8px_0px_rgba(39,39,42,0.5)]">
             <div className="absolute inset-0 opacity-20 bg-[url('/grunge.jpg')] bg-cover mix-blend-overlay pointer-events-none"></div>
             <div className="relative z-10 flex flex-col items-start text-left">
@@ -215,7 +218,6 @@ export default function ConferênciaVouLP() {
               <p className="text-sm text-zinc-500 font-black uppercase tracking-widest">(Mateus 9:37)</p>
             </div>
           </div>
-
         </div>
       </section>
 
@@ -346,7 +348,7 @@ export default function ConferênciaVouLP() {
 
         <div className="grid md:grid-cols-3 gap-8">
           
-          {/* LOTE 1 (COM TRAVA DE ESGOTADO DINÂMICA) */}
+          {/* LOTE 1 */}
           <div className={`relative p-8 rounded-2xl border transition-all flex flex-col justify-between ${
             isLote1Esgotado 
               ? 'bg-zinc-900/30 border-transparent opacity-50 grayscale pointer-events-none select-none overflow-hidden' 
@@ -500,10 +502,34 @@ export default function ConferênciaVouLP() {
             
             <form onSubmit={handleNextOrSubmit} className="space-y-4">
               
-              {selectedTicket === 'caravana' && (
+              {/* SELETOR DE QUANTIDADE (Apenas no Passo 1 do Lote 1) */}
+              {selectedTicket === 'lote1' && currentParticipant === 0 && (
+                <div className="mb-6">
+                  <label className="block text-xs font-bold text-zinc-500 mb-2 uppercase tracking-widest">Quantidade de Ingressos</label>
+                  <div className="flex bg-zinc-900 border border-zinc-800 p-1 rounded-lg">
+                    <button 
+                      type="button"
+                      onClick={() => adjustQuantity(1)}
+                      className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${participants.length === 1 ? 'bg-white text-black' : 'text-zinc-500 hover:text-white'}`}
+                    >
+                      1 Ingresso
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => adjustQuantity(2)}
+                      className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${participants.length === 2 ? 'bg-white text-black' : 'text-zinc-500 hover:text-white'}`}
+                    >
+                      2 Ingressos
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* HEADER DE MÚLTIPLAS PESSOAS (Dinâmico) */}
+              {participants.length > 1 && (
                 <div className="flex justify-between items-center mb-4 pb-2 border-b border-zinc-800">
-                  <span className="text-purple-500 font-bold uppercase text-sm tracking-wider">
-                    Inscrição {currentParticipant + 1} de 3
+                  <span className="text-white font-bold uppercase text-sm tracking-wider">
+                    Inscrição {currentParticipant + 1} de {participants.length}
                   </span>
                   {currentParticipant > 0 && (
                     <button 
@@ -517,6 +543,7 @@ export default function ConferênciaVouLP() {
                 </div>
               )}
 
+              {/* CAMPOS DO FORMULÁRIO */}
               <div>
                 <label className="block text-sm font-bold text-zinc-300 mb-1">Nome Completo</label>
                 <input required type="text" value={participants[currentParticipant].name} onChange={e => updateParticipant('name', e.target.value)} className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-white transition-colors" placeholder="João Silva" />
@@ -533,7 +560,7 @@ export default function ConferênciaVouLP() {
               <button disabled={isSubmitting} type="submit" className="w-full bg-white text-black font-black uppercase py-4 rounded-lg mt-6 hover:bg-gray-200 transition-colors flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed">
                 {isSubmitting 
                   ? "Gerando Pagamento..." 
-                  : (selectedTicket === 'caravana' && currentParticipant < 2 
+                  : (currentParticipant < participants.length - 1 
                       ? "Próxima Inscrição →" 
                       : "Ir para Pagamento")}
               </button>
