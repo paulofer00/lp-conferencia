@@ -348,12 +348,8 @@ export default function ConferênciaVouLP() {
 
         <div className="grid md:grid-cols-3 gap-8">
           
-          {/* LOTE 1 */}
-          <div className={`relative p-8 rounded-2xl border transition-all flex flex-col justify-between ${
-            isLote1Esgotado 
-              ? 'bg-zinc-900/30 border-transparent opacity-50 grayscale pointer-events-none select-none overflow-hidden' 
-              : 'bg-zinc-900 border-zinc-700 hover:-translate-y-2 shadow-2xl'
-          }`}>
+          {/* LOTE 1 / LOTE 2 */}
+          <div className="bg-zinc-900 border-zinc-700 hover:-translate-y-2 shadow-2xl relative p-8 rounded-2xl border transition-all flex flex-col justify-between">
             {!isLote1Esgotado && (
               <>
                 <div className="absolute top-0 left-0 w-full h-1 bg-white rounded-t-2xl"></div>
@@ -364,21 +360,16 @@ export default function ConferênciaVouLP() {
             )}
             
             <div>
-              <h3 className="text-2xl font-black uppercase mb-2">VOU - LOTE 01</h3>
+              <h3 className="text-2xl font-black uppercase mb-2">VOU - {isLote1Esgotado ? 'LOTE 02' : 'LOTE 01'}</h3>
               <p className="text-gray-400 text-sm mb-6">Acesso completo a todos os dias</p>
-              <div className="text-5xl font-black mb-8">R$ 70<span className="text-xl text-gray-500">,00</span></div>
+              <div className="text-5xl font-black mb-8">R$ {isLote1Esgotado ? '80' : '70'}<span className="text-xl text-gray-500">,00</span></div>
             </div>
             
             <button 
-              disabled={isLote1Esgotado}
               onClick={() => openCheckout('lote1')} 
-              className={`w-full font-black uppercase py-4 rounded-lg transition-colors ${
-                isLote1Esgotado
-                  ? 'bg-[#1a1a1a] text-zinc-600'
-                  : 'bg-white text-black hover:bg-gray-200'
-              }`}
+              className="w-full font-black uppercase py-4 rounded-lg transition-colors bg-white text-black hover:bg-gray-200"
             >
-              {isLote1Esgotado ? 'ESGOTADO' : 'Comprar Ingresso'}
+              Comprar Ingresso
             </button>
           </div>
 

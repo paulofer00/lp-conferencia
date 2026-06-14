@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       finalTicketType = "kids";
     } else {
       // Regra do Lote 01 e Lote 02 (Pode ser 1 ou 2 pessoas)
-      const limitDate = new Date("2026-06-14T00:00:00-03:00");
+      const limitDate = new Date("2026-06-15T00:00:00-03:00");
       const currentDate = new Date();
 
       const { count } = await supabaseAdmin

@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET() {
   try {
-    const limitDate = new Date("2026-06-14T00:00:00-03:00");
+    const limitDate = new Date("2026-06-15T00:00:00-03:00");
     const currentDate = new Date();
 
     // Conta as vendas concluídas
