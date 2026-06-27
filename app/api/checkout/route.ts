@@ -11,8 +11,8 @@ export async function POST(request: Request) {
 
     // 1. REGRA DE PREÇOS E LOTES
     if (ticketType === "caravana") {
-      ticketName = "Caravana Vou Eu +2";
-      ticketPrice = 19500;
+      ticketName = "Caravana VOU +3";
+      ticketPrice = 28000;
       finalTicketType = "caravana";
     } else if (ticketType === "kids") {
       ticketName = "Crianças 8 a 11 Anos";

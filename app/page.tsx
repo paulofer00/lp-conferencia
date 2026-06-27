@@ -34,7 +34,7 @@ export default function ConferênciaVouLP() {
       .catch(err => console.error("Erro ao checar status do lote:", err));
 
     // 2. Contador
-    const targetDate = new Date("2026-08-28T19:30:00-03:00").getTime();
+    const targetDate = new Date("2026-08-21T19:30:00-03:00").getTime();
     
     const interval = setInterval(() => {
       const now = new Date().getTime();
@@ -63,6 +63,7 @@ export default function ConferênciaVouLP() {
     
     if (ticketType === 'caravana') {
       setParticipants([
+        { name: '', email: '', phone: '' },
         { name: '', email: '', phone: '' },
         { name: '', email: '', phone: '' },
         { name: '', email: '', phone: '' }
@@ -379,9 +380,9 @@ export default function ConferênciaVouLP() {
               Mais Popular
             </div>
             <div>
-              <h3 className="text-2xl font-black uppercase mb-2">Caravana Vou Eu +2</h3>
+              <h3 className="text-2xl font-black uppercase mb-2">Caravana VOU +3</h3>
               <p className="text-gray-400 text-sm mb-6">Ingresso promocional para grupos</p>
-              <div className="text-5xl font-black mb-8">R$ 65<span className="text-xl text-gray-500">,00</span><span className="text-sm font-normal text-gray-400 block mt-2">/pessoa</span></div>
+              <div className="text-5xl font-black mb-8">R$ 70<span className="text-xl text-gray-500">,00</span><span className="text-sm font-normal text-gray-400 block mt-2">/pessoa</span></div>
             </div>
             <button onClick={() => openCheckout('caravana')} className="w-full bg-white text-black font-black uppercase py-4 rounded-lg hover:bg-gray-200 transition-colors">
               Comprar Combo
