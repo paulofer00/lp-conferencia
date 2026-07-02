@@ -347,7 +347,7 @@ export default function ConferênciaVouLP() {
           <p className="text-gray-400 mt-4 text-lg">Garanta seu lugar. Lotes sujeitos à virada sem aviso prévio.</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           
           {/* LOTE 1 / LOTE 2 */}
           <div className="bg-zinc-900 border-zinc-700 hover:-translate-y-2 shadow-2xl relative p-8 rounded-2xl border transition-all flex flex-col justify-between">
@@ -389,17 +389,6 @@ export default function ConferênciaVouLP() {
             </button>
           </div>
 
-          {/* CRIANÇAS */}
-          <div className="bg-zinc-900 border border-zinc-700 p-8 rounded-2xl flex flex-col justify-between hover:-translate-y-2 transition-transform shadow-2xl">
-            <div>
-              <h3 className="text-2xl font-black uppercase mb-2">Crianças 8 a 11 Anos</h3>
-              <p className="text-gray-400 text-sm mb-6">Programação VOU Kids</p>
-              <div className="text-5xl font-black mb-8">R$ 35<span className="text-xl text-gray-500">,00</span></div>
-            </div>
-            <button onClick={() => openCheckout('kids')} className="w-full bg-transparent border-2 border-white text-white font-black uppercase py-4 rounded-lg hover:bg-white hover:text-black transition-colors">
-              Comprar Kids
-            </button>
-          </div>
         </div>
       </section>
 

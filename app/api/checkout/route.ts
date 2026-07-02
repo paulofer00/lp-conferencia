@@ -14,10 +14,6 @@ export async function POST(request: Request) {
       ticketName = "Caravana VOU +3";
       ticketPrice = 28000;
       finalTicketType = "caravana";
-    } else if (ticketType === "kids") {
-      ticketName = "Crianças 8 a 11 Anos";
-      ticketPrice = 3500;
-      finalTicketType = "kids";
     } else {
       // Regra do Lote 01 e Lote 02 (Pode ser 1 ou 2 pessoas)
       const limitDate = new Date("2026-06-15T00:00:00-03:00");
