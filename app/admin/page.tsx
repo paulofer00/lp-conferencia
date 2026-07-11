@@ -97,8 +97,8 @@ export default function AdminDashboard() {
   // Cálculo exato incluindo o Lote 2 
   const revenueLote1 = paidLeads.filter(l => !l.ticketType || l.ticketType === "lote1").length * 70;
   const revenueLote2 = paidLeads.filter(l => l.ticketType === "lote2").length * 80;
-  const revenueCaravana = paidLeads.filter(l => l.ticketType === "caravana").length * 65;
-  const revenueKids = paidLeads.filter(l => l.ticketType === "kids").length * 35;
+  const revenueCaravana = paidLeads.filter(l => l.ticketType === "caravana").length * 70;
+  const revenueKids = paidLeads.filter(l => l.ticketType === "kids").length * 45;
   const totalRevenue = revenueLote1 + revenueLote2 + revenueCaravana + revenueKids;
 
   const recentSales = [...paidLeads]
@@ -212,8 +212,8 @@ export default function AdminDashboard() {
                   <select value={newLead.ticketType} onChange={e => setNewLead({...newLead, ticketType: e.target.value})} className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-white">
                     <option value="lote1">Lote 01 (R$ 70,00)</option>
                     <option value="lote2">Lote 02 (R$ 80,00)</option>
-                    <option value="caravana">Caravana (R$ 65,00/pessoa)</option>
-                    <option value="kids">VOU Kids (R$ 35,00)</option>
+                    <option value="caravana">Caravana +3 (R$ 70,00/pessoa)</option>
+                    <option value="kids">VOU Kids (R$ 45,00)</option>
                   </select>
                 </div>
                 <button disabled={isSubmitting} type="submit" className="w-full bg-white text-black font-bold uppercase tracking-widest py-3 rounded-lg mt-4 hover:bg-zinc-200 transition-colors text-xs disabled:opacity-50">
@@ -271,11 +271,20 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <div className="flex justify-between items-end mb-2">
-                      <span className="text-sm font-medium text-zinc-200">Caravana +2 <span className="text-zinc-600 font-normal ml-2">{paidLeads.filter(l => l.ticketType === "caravana").length} un</span></span>
+                      <span className="text-sm font-medium text-zinc-200">Caravana +3 <span className="text-zinc-600 font-normal ml-2">{paidLeads.filter(l => l.ticketType === "caravana").length} un</span></span>
                       <span className="text-sm text-white">R$ {revenueCaravana.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
                       <div className="h-full bg-blue-500 rounded-full" style={{ width: `${totalRevenue > 0 ? (revenueCaravana / totalRevenue) * 100 : 0}%` }}></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-end mb-2">
+                      <span className="text-sm font-medium text-zinc-200">VOU Kids <span className="text-zinc-600 font-normal ml-2">{paidLeads.filter(l => l.ticketType === "kids").length} un</span></span>
+                      <span className="text-sm text-white">R$ {revenueKids.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${totalRevenue > 0 ? (revenueKids / totalRevenue) * 100 : 0}%` }}></div>
                     </div>
                   </div>
                 </div>
@@ -297,7 +306,7 @@ export default function AdminDashboard() {
                           <p className="text-[10px] text-zinc-600 uppercase tracking-widest">{sale.ticketType || "LOTE 1"}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-emerald-400 font-medium">+ R$ {sale.ticketType === 'caravana' ? '65,00' : sale.ticketType === 'kids' ? '35,00' : sale.ticketType === 'lote2' ? '80,00' : '70,00'}</p>
+                          <p className="text-sm text-emerald-400 font-medium">+ R$ {sale.ticketType === 'caravana' ? '70,00' : sale.ticketType === 'kids' ? '45,00' : sale.ticketType === 'lote2' ? '80,00' : '70,00'}</p>
                         </div>
                       </div>
                     ))}
