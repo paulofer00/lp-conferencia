@@ -14,6 +14,7 @@ export default function ConferênciaVouLP() {
 
   // --- ESTADO DO LOTE ESGOTADO ---
   const [isLote1Esgotado, setIsLote1Esgotado] = useState(false);
+  const [isKidsEsgotado, setIsKidsEsgotado] = useState(false);
 
   // --- NOVOS ESTADOS DO MODAL DE CHECKOUT ---
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,6 +31,7 @@ export default function ConferênciaVouLP() {
       .then(res => res.json())
       .then(data => {
         if (data.isEsgotado) setIsLote1Esgotado(true);
+        if (data.isKidsEsgotado) setIsKidsEsgotado(true);
       })
       .catch(err => console.error("Erro ao checar status do lote:", err));
 
@@ -347,7 +349,7 @@ export default function ConferênciaVouLP() {
           <p className="text-gray-400 mt-4 text-lg">Garanta seu lugar. Lotes sujeitos à virada sem aviso prévio.</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8">
           
           {/* LOTE 1 / LOTE 2 */}
           <div className="bg-zinc-900 border-zinc-700 hover:-translate-y-2 shadow-2xl relative p-8 rounded-2xl border transition-all flex flex-col justify-between">
@@ -384,6 +386,38 @@ export default function ConferênciaVouLP() {
             </div>
             <button onClick={() => openCheckout('caravana')} className="w-full bg-white text-black font-black uppercase py-4 rounded-lg hover:bg-gray-200 transition-colors">
               Comprar Combo
+            </button>
+          </div>
+
+          {/* CRIANÇAS */}
+          <div className={`relative p-8 rounded-2xl border transition-all flex flex-col justify-between ${
+            isKidsEsgotado 
+              ? 'bg-zinc-900/30 border-transparent opacity-50 grayscale pointer-events-none select-none overflow-hidden' 
+              : 'bg-zinc-900 border-zinc-700 hover:-translate-y-2 shadow-2xl'
+          }`}>
+            {!isKidsEsgotado && (
+              <>
+                <div className="absolute top-0 left-0 w-full h-1 bg-white rounded-t-2xl"></div>
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black font-bold uppercase text-[10px] md:text-xs px-3 md:px-4 py-1 rounded-full whitespace-nowrap tracking-wider shadow-md">
+                  Apenas 50 Vagas
+                </div>
+              </>
+            )}
+            <div>
+              <h3 className="text-2xl font-black uppercase mb-2">Crianças 8 a 11 Anos</h3>
+              <p className="text-gray-400 text-sm mb-6">Programação VOU Kids</p>
+              <div className="text-5xl font-black mb-8">R$ 45<span className="text-xl text-gray-500">,00</span></div>
+            </div>
+            <button 
+              disabled={isKidsEsgotado}
+              onClick={() => openCheckout('kids')} 
+              className={`w-full font-black uppercase py-4 rounded-lg transition-colors border-2 ${
+                isKidsEsgotado
+                  ? 'bg-[#1a1a1a] text-zinc-600 border-transparent'
+                  : 'bg-transparent border-white text-white hover:bg-white hover:text-black'
+              }`}
+            >
+              {isKidsEsgotado ? 'ESGOTADO' : 'Comprar Kids'}
             </button>
           </div>
 
