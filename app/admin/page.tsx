@@ -12,6 +12,7 @@ export default function AdminDashboard() {
   
   const [activeTab, setActiveTab] = useState<"financeiro" | "inscritos">("financeiro");
   const [filtro, setFiltro] = useState<"todos" | "pendente" | "comprador" | "presente">("todos");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // --- ESTADOS DO MODAL DE INSCRIÇÃO MANUAL ---
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -87,10 +88,35 @@ export default function AdminDashboard() {
   const presentes = leads.filter(l => l.status === "presente").length;
 
   const leadsFiltrados = leads.filter(l => {
-    if (filtro === "todos") return true;
-    if (filtro === "pendente") return l.status === "pendente" || !l.status;
-    return l.status === filtro;
+    const matchesSearch = l.name?.toLowerCase().includes(searchQuery.toLowerCase()) || l.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    if (filtro === "todos") return matchesSearch;
+    if (filtro === "pendente") return (l.status === "pendente" || !l.status) && matchesSearch;
+    return l.status === filtro && matchesSearch;
   });
+
+  // --- FUNÇÃO PARA CHECK-IN MANUAL NA TABELA ---
+  const handleManualCheckin = async (id: string) => {
+    if (!confirm("Confirmar check-in para este participante?")) return;
+    
+    try {
+      const savedPin = localStorage.getItem("staff_pin_vou");
+      const res = await fetch("/api/checkin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, pin: savedPin })
+      });
+      
+      if (res.ok) {
+        fetchDashboardData();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Erro ao fazer check-in");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao fazer check-in");
+    }
+  };
 
   const paidLeads = leads.filter(l => l.status === "comprador" || l.status === "presente");
   
@@ -322,10 +348,19 @@ export default function AdminDashboard() {
         ============================================= */}
         {activeTab === "inscritos" && (
           <div className="space-y-6">
-            <div className="flex gap-6 border-b border-zinc-900 mb-6 overflow-x-auto">
-              <button onClick={() => setFiltro("todos")} className={`pb-3 text-sm font-medium whitespace-nowrap transition-colors ${filtro === 'todos' ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>Todos ({totalLeads})</button>
-              <button onClick={() => setFiltro("comprador")} className={`pb-3 text-sm font-medium whitespace-nowrap transition-colors ${filtro === 'comprador' ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>Pagos ({compradores})</button>
-              <button onClick={() => setFiltro("presente")} className={`pb-3 text-sm font-medium whitespace-nowrap transition-colors ${filtro === 'presente' ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>No Evento ({presentes})</button>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+              <div className="flex gap-6 border-b border-zinc-900 overflow-x-auto w-full sm:w-auto">
+                <button onClick={() => setFiltro("todos")} className={`pb-3 text-sm font-medium whitespace-nowrap transition-colors ${filtro === 'todos' ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>Todos ({totalLeads})</button>
+                <button onClick={() => setFiltro("comprador")} className={`pb-3 text-sm font-medium whitespace-nowrap transition-colors ${filtro === 'comprador' ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>Pagos ({compradores})</button>
+                <button onClick={() => setFiltro("presente")} className={`pb-3 text-sm font-medium whitespace-nowrap transition-colors ${filtro === 'presente' ? 'border-b-2 border-white text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>No Evento ({presentes})</button>
+              </div>
+              <input 
+                type="text" 
+                placeholder="Pesquisar por nome..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full sm:w-64 bg-[#050505] border border-zinc-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-600"
+              />
             </div>
             <div className="bg-[#050505] border border-zinc-900 rounded-xl overflow-hidden">
               <div className="overflow-x-auto">
@@ -346,7 +381,16 @@ export default function AdminDashboard() {
                         </td>
                         <td className="py-4 px-6 text-zinc-400 uppercase text-xs tracking-wider">{lead.ticketType || "Lote 1"}</td>
                         <td className="py-4 px-6 text-right">
-                          {lead.status === "presente" ? <span className="inline-flex items-center gap-2 text-xs text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Presente</span> : lead.status === "comprador" ? <span className="inline-flex items-center gap-2 text-xs text-blue-400"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Pago</span> : <span className="inline-flex items-center gap-2 text-xs text-zinc-500"><span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> Pendente</span>}
+                          {lead.status === "presente" ? (
+                            <span className="inline-flex items-center gap-2 text-xs text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Presente</span>
+                          ) : lead.status === "comprador" ? (
+                            <div className="flex items-center justify-end gap-4">
+                              <span className="inline-flex items-center gap-2 text-xs text-blue-400"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Pago</span>
+                              <button onClick={() => handleManualCheckin(lead.id)} className="text-[10px] uppercase tracking-widest font-bold bg-white text-black hover:bg-zinc-200 px-3 py-1.5 rounded transition-colors">Dar Entrada</button>
+                            </div>
+                          ) : (
+                            <span className="inline-flex items-center gap-2 text-xs text-zinc-500"><span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> Pendente</span>
+                          )}
                         </td>
                       </tr>
                     ))}
