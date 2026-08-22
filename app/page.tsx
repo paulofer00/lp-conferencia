@@ -352,72 +352,45 @@ export default function ConferênciaVouLP() {
         <div className="grid md:grid-cols-3 gap-8">
           
           {/* LOTE 1 / LOTE 2 */}
-          <div className="bg-zinc-900 border-zinc-700 hover:-translate-y-2 shadow-2xl relative p-8 rounded-2xl border transition-all flex flex-col justify-between">
-              <>
-                <div className="absolute top-0 left-0 w-full h-1 bg-white rounded-t-2xl"></div>
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black font-bold uppercase text-[10px] md:text-xs px-3 md:px-4 py-1 rounded-full whitespace-nowrap tracking-wider shadow-md">
-                  Até Dia 21/08
-                </div>
-              </>
-            
+          <div className="relative p-8 rounded-2xl border transition-all flex flex-col justify-between bg-zinc-900/30 border-transparent opacity-50 grayscale pointer-events-none select-none overflow-hidden">
             <div>
-              <h3 className="text-2xl font-black uppercase mb-2">VOU - {isLote1Esgotado ? 'LOTE 02' : 'LOTE 01'}</h3>
+              <h3 className="text-2xl font-black uppercase mb-2">VOU - LOTE 02</h3>
               <p className="text-gray-400 text-sm mb-6">Acesso completo a todos os dias</p>
-              <div className="text-5xl font-black mb-8">R$ {isLote1Esgotado ? '80' : '70'}<span className="text-xl text-gray-500">,00</span></div>
+              <div className="text-5xl font-black mb-8">R$ 80<span className="text-xl text-gray-500">,00</span></div>
             </div>
             
             <button 
-              onClick={() => openCheckout('lote1')} 
-              className="w-full font-black uppercase py-4 rounded-lg transition-colors bg-white text-black hover:bg-gray-200"
+              disabled
+              className="w-full font-black uppercase py-4 rounded-lg transition-colors border-2 bg-[#1a1a1a] text-zinc-600 border-transparent"
             >
-              Comprar Ingresso
+              ENCERRADO
             </button>
           </div>
 
           {/* CARAVANA */}
-          <div className="bg-zinc-800 border-2 border-white p-8 rounded-2xl flex flex-col justify-between transform md:-translate-y-4 shadow-[0_0_30px_rgba(255,255,255,0.1)] relative">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-black font-bold uppercase text-xs px-4 py-1 rounded-full whitespace-nowrap">
-              Até Dia 21/08
-            </div>
+          <div className="relative p-8 rounded-2xl border transition-all flex flex-col justify-between transform md:-translate-y-4 shadow-[0_0_30px_rgba(255,255,255,0.1)] bg-zinc-900/30 border-transparent opacity-50 grayscale pointer-events-none select-none overflow-hidden">
             <div>
               <h3 className="text-2xl font-black uppercase mb-2">Caravana VOU +3</h3>
               <p className="text-gray-400 text-sm mb-6">Ingresso promocional para grupos</p>
               <div className="text-5xl font-black mb-8">R$ 70<span className="text-xl text-gray-500">,00</span><span className="text-sm font-normal text-gray-400 block mt-2">/pessoa</span></div>
             </div>
-            <button onClick={() => openCheckout('caravana')} className="w-full bg-white text-black font-black uppercase py-4 rounded-lg hover:bg-gray-200 transition-colors">
-              Comprar Combo
+            <button disabled className="w-full font-black uppercase py-4 rounded-lg transition-colors border-2 bg-[#1a1a1a] text-zinc-600 border-transparent">
+              ENCERRADO
             </button>
           </div>
 
           {/* CRIANÇAS */}
-          <div className={`relative p-8 rounded-2xl border transition-all flex flex-col justify-between ${
-            isKidsEsgotado 
-              ? 'bg-zinc-900/30 border-transparent opacity-50 grayscale pointer-events-none select-none overflow-hidden' 
-              : 'bg-zinc-900 border-zinc-700 hover:-translate-y-2 shadow-2xl'
-          }`}>
-            {!isKidsEsgotado && (
-              <>
-                <div className="absolute top-0 left-0 w-full h-1 bg-white rounded-t-2xl"></div>
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black font-bold uppercase text-[10px] md:text-xs px-3 md:px-4 py-1 rounded-full whitespace-nowrap tracking-wider shadow-md">
-                  Apenas 50 Vagas
-                </div>
-              </>
-            )}
+          <div className="relative p-8 rounded-2xl border transition-all flex flex-col justify-between bg-zinc-900/30 border-transparent opacity-50 grayscale pointer-events-none select-none overflow-hidden">
             <div>
               <h3 className="text-2xl font-black uppercase mb-2">Crianças 8 a 11 Anos</h3>
               <p className="text-gray-400 text-sm mb-6">Programação VOU Kids</p>
               <div className="text-5xl font-black mb-8">R$ 45<span className="text-xl text-gray-500">,00</span></div>
             </div>
             <button 
-              disabled={isKidsEsgotado}
-              onClick={() => openCheckout('kids')} 
-              className={`w-full font-black uppercase py-4 rounded-lg transition-colors border-2 ${
-                isKidsEsgotado
-                  ? 'bg-[#1a1a1a] text-zinc-600 border-transparent'
-                  : 'bg-transparent border-white text-white hover:bg-white hover:text-black'
-              }`}
+              disabled
+              className="w-full font-black uppercase py-4 rounded-lg transition-colors border-2 bg-[#1a1a1a] text-zinc-600 border-transparent"
             >
-              {isKidsEsgotado ? 'ESGOTADO' : 'Comprar Kids'}
+              ENCERRADO
             </button>
           </div>
 
